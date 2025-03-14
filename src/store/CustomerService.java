@@ -1,8 +1,9 @@
 package store;
 
 public class CustomerService extends Employee {
-    public CustomerService(String name, int id, String department, double salary) {
-        super(name, id, department, salary);
+
+    public CustomerService(String name, int id, String department, double salary, Store store) {
+        super(name, id, salary, store);
     }
 
     public void handleRequest(String requestType, String details) {

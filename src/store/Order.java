@@ -39,6 +39,7 @@ public class Order {
         System.out.println("Total: $" + totalPrice);
     }
 
+    // TODO refactor
     private double calculateTotal(List<Product> products) {
         double total = 0;
         for (Product p : products) {

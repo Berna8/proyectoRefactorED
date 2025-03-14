@@ -1,41 +1,49 @@
 package store;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class InventoryManager extends Employee {
-    private List<Product> inventory = new ArrayList<>();
 
-    public InventoryManager(String name, int id, String department, double salary) {
-        super(name, id, department, salary);
+    public InventoryManager(String name, int id, String department, double salary, Store store) {
+        super(name, id, salary, store);
     }
 
     public void addProduct(String name, double price, String category, int stock) {
-        inventory.add(new Product(name, price, category, stock));
+        List<Product> new_inventory = getStore().getInventory();
+        new_inventory.add(new Product(name, price, category, stock));
+        getStore().setInventory(new_inventory);
+        System.out.println("Product " + name + " added to store inventory by " + getName() + "(" + getId() + ")");
     }
 
     // TODO refactor
     public void removeProduct(String name) {
-        for (Product p : inventory) {
+        List<Product> new_inventory = getStore().getInventory();
+        for (Product p : new_inventory) {
             if (p.n.equals(name)) {
-                inventory.remove(p);
+                new_inventory.remove(p);
                 break;
             }
         }
+        getStore().setInventory(new_inventory);
+        System.out.println("Product " + name + " removed from store inventory by " + getName() + "(" + getId() + ")");
     }
 
     // TODO refactor
     public void updateStock(String name, int newStock) {
-        for (Product p : inventory) {
+        List<Product> new_inventory = getStore().getInventory();
+        for (Product p : new_inventory) {
             if (p.n.equals(name)) {
                 p.s = newStock;
             }
         }
+        getStore().setInventory(new_inventory);
+        System.out.println("Product " + name + "updated by " + getName() + "(" + getId() + ")");
     }
 
     // TODO refactor
     public void printInventory() {
-        for (Product p : inventory) {
+        for (Product p : getStore().getInventory()) {
             System.out.println(p.n + " - " + p.c + " - $" + p.p + " - Stock: " + p.s);
         }
     }
@@ -52,8 +60,8 @@ public class InventoryManager extends Employee {
     // TODO refactor
     public void processInventory(String categoryFilter, double minPrice, double maxPrice, boolean applyDiscount) {
         System.out.println("Procesando inventario...");
-
-        for (Product p : inventory) {
+        List<Product> new_inventory = getStore().getInventory();
+        for (Product p : new_inventory) {
             if (p.c.equals(categoryFilter) || categoryFilter.equals("all")) {
                 if (p.p >= minPrice && p.p <= maxPrice) {
                     if (applyDiscount) {
@@ -80,12 +88,14 @@ public class InventoryManager extends Employee {
         int totalStock = 0;
         double totalValue = 0;
 
-        for (Product p : inventory) {
+        for (Product p : new_inventory) {
             totalStock += p.s;
             totalValue += p.p * p.s;
         }
 
         System.out.println("Resumen: " + totalStock + " productos en stock, valor total: $" + totalValue);
+        getStore().setInventory(new_inventory);
+        System.out.println("Inventory processed by " + getName() + "(" + getId() + ")");
     }
 
 }
