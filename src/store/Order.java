@@ -34,17 +34,20 @@ public class Order {
         System.out.println("Dirección: " + address);
         System.out.println("Productos:");
         for (Product p : products) {
-            System.out.println("- " + p.n + " (" + p.c + "): $" + p.p);
+            System.out.println("- " + p.nombre + " (" + p.categoria + "): $" + p.precio);
         }
         System.out.println("Total: $" + totalPrice);
     }
 
     // TODO refactor
     private double calculateTotal(List<Product> products) {
-        double total = 0;
-        for (Product p : products) {
-            total += p.p;
-        }
-        return total;
+        return products.stream()
+                .mapToDouble(Product::getPrecio)
+                .sum();
+    }
+
+    // TODO refactor
+    public String getOrderPayMethod() {
+        return getPayment().getPayMethod().getType();
     }
 }

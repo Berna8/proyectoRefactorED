@@ -1,6 +1,5 @@
 package store;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class InventoryManager extends Employee {
@@ -18,34 +17,27 @@ public class InventoryManager extends Employee {
 
     // TODO refactor
     public void removeProduct(String name) {
-        List<Product> new_inventory = getStore().getInventory();
-        for (Product p : new_inventory) {
-            if (p.n.equals(name)) {
-                new_inventory.remove(p);
-                break;
-            }
-        }
-        getStore().setInventory(new_inventory);
-        System.out.println("Product " + name + " removed from store inventory by " + getName() + "(" + getId() + ")");
+        List<Product> inventory = getStore().getInventory();
+        inventory.removeIf(product -> product.getNombre().equals(name));
+        System.out.println("Producto " + name + " eliminado del inventario de la tienda por " + getName() + "(" + getId() + ")");
     }
 
     // TODO refactor
     public void updateStock(String name, int newStock) {
-        List<Product> new_inventory = getStore().getInventory();
-        for (Product p : new_inventory) {
-            if (p.n.equals(name)) {
-                p.s = newStock;
+        for (Product product : getStore().getInventory()) {
+            if (product.getNombre().equals(name)) {
+                product.setStock(newStock);
+                System.out.println("Producto " + name + " actualizado por " + getName() + "(" + getId() + ")");
+                return;
             }
         }
-        getStore().setInventory(new_inventory);
-        System.out.println("Product " + name + "updated by " + getName() + "(" + getId() + ")");
     }
 
     // TODO refactor
     public void printInventory() {
-        for (Product p : getStore().getInventory()) {
-            System.out.println(p.n + " - " + p.c + " - $" + p.p + " - Stock: " + p.s);
-        }
+        getStore().getInventory().forEach(product ->
+                System.out.println(product.getNombre() + " - " + product.getCategoria() + " - $" + product.getPrecio() + " - Stock: " + product.getStock())
+        );
     }
 
     @Override
@@ -60,42 +52,50 @@ public class InventoryManager extends Employee {
     // TODO refactor
     public void processInventory(String categoryFilter, double minPrice, double maxPrice, boolean applyDiscount) {
         System.out.println("Procesando inventario...");
-        List<Product> new_inventory = getStore().getInventory();
-        for (Product p : new_inventory) {
-            if (p.c.equals(categoryFilter) || categoryFilter.equals("all")) {
-                if (p.p >= minPrice && p.p <= maxPrice) {
-                    if (applyDiscount) {
-                        if (p.c.equals("electronics")) {
-                            p.p *= 0.9;  // 10% de descuento
-                        } else if (p.c.equals("clothing")) {
-                            p.p *= 0.85; // 15% de descuento
-                        } else {
-                            p.p *= 0.95; // 5% de descuento
-                        }
-                    }
-
-                    if (p.s == 0) {
-                        System.out.println("[AGOTADO] " + p.n);
-                    } else if (p.s < 5) {
-                        System.out.println("[BAJO STOCK] " + p.n + " - Quedan " + p.s);
-                    } else {
-                        System.out.println("[OK] " + p.n + " - Precio: $" + p.p + " - Stock: " + p.s);
-                    }
-                }
-            }
-        }
-
-        int totalStock = 0;
+        List<Product> inventory = getStore().getInventory();
         double totalValue = 0;
+        int totalStock = 0;
 
-        for (Product p : new_inventory) {
-            totalStock += p.s;
-            totalValue += p.p * p.s;
+        for (Product product : inventory) {
+            if ((categoryFilter.equals("all") || product.getCategoria().equals(categoryFilter)) &&
+                    product.getPrecio() >= minPrice && product.getPrecio() <= maxPrice) {
+
+                if (applyDiscount) {
+                    applyCategoryDiscount(product);
+                }
+
+                printStockStatus(product);
+            }
+            totalStock += product.getStock();
+            totalValue += product.getPrecio() * product.getStock();
         }
 
         System.out.println("Resumen: " + totalStock + " productos en stock, valor total: $" + totalValue);
-        getStore().setInventory(new_inventory);
-        System.out.println("Inventory processed by " + getName() + "(" + getId() + ")");
+        System.out.println("Inventario procesado por " + getName() + "(" + getId() + ")");
+    }
+
+    private void applyCategoryDiscount(Product product) {
+        switch (product.getCategoria()) {
+            case "electronics":
+                product.setPrecio(product.getPrecio() * 0.9);
+                break;
+            case "clothing":
+                product.setPrecio(product.getPrecio() * 0.85);
+                break;
+            default:
+                product.setPrecio(product.getPrecio() * 0.95);
+                break;
+        }
+    }
+
+    private void printStockStatus(Product product) {
+        if (product.getStock() == 0) {
+            System.out.println("[AGOTADO] " + product.getNombre());
+        } else if (product.getStock() < 5) {
+            System.out.println("[BAJO STOCK] " + product.getNombre() + " - Restantes: " + product.getStock());
+        } else {
+            System.out.println("[OK] " + product.getNombre() + " - Precio: $" + product.getPrecio() + " - Stock: " + product.getStock());
+        }
     }
 
 }

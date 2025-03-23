@@ -7,8 +7,4 @@ public class Customer {
         this.order = order;
     }
 
-    // TODO refactor
-    public String getOrderPayMethod() {
-        return order.getPayment().getPayMethod().getType();
-    }
 }

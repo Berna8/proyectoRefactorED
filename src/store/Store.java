@@ -21,8 +21,7 @@ public class Store {
 
     // TODO refactor
     public List<Product> getInventory() {
-        List<Product> newList = new LinkedList<Product>(inventory);
-        return newList;
+        return new LinkedList<Product>(inventory);
     }
 
     public void setInventory(List<Product> inventory) {
